@@ -31,12 +31,31 @@ const REVENUE_RANGES = [
   { label: '1亿以上', min: 10000, max: Infinity },
 ];
 
+interface MissingFieldOption {
+  label: string;
+  key: string;
+  isMissing: (ent: Enterprise) => boolean;
+}
+
+const MISSING_FIELD_OPTIONS: MissingFieldOption[] = [
+  { label: '法定代表人', key: 'legalRep', isMissing: (ent) => !ent.legalRep },
+  { label: '联系人', key: 'contact', isMissing: (ent) => !ent.contactName && !ent.legalRepPhone },
+  { label: '创新投入', key: 'rdExpense', isMissing: (ent) => !ent.rdExpenseLastYear && !ent.rdExpense2025 },
+  { label: '创新产出', key: 'patents', isMissing: (ent) => !ent.patentsInvention && !ent.patentsUtility && !ent.softwareCopyrights },
+  { label: '创新发展', key: 'techDomain', isMissing: (ent) => !ent.techDomain },
+  { label: '核心产品名称', key: 'coreProduct', isMissing: (ent) => !ent.coreProduct },
+  { label: '企业规模类型', key: 'scale', isMissing: (ent) => !ent.scale },
+  { label: '机构实缴股权融资累计金额', key: 'financingAmount', isMissing: (ent) => !ent.financingAmount },
+  { label: '核心团队杭州市D类及以上高层次人才', key: 'highLevelTalent', isMissing: (ent) => !ent.highLevelTalent },
+];
+
 export function EnterpriseList() {
   const [selectedEnterprise, setSelectedEnterprise] = useState<Enterprise | null>(null);
   const [editedData, setEditedData] = useState<Enterprise | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [importMode, setImportMode] = useState<'supplement' | 'overwrite'>('supplement');
+  const [importBatch, setImportBatch] = useState('');
   const [isExporting, setIsExporting] = useState(false);
   const [selectedExportIds, setSelectedExportIds] = useState<string[]>([]);
   const [otherInfoDraft, setOtherInfoDraft] = useState<string[]>([]);
@@ -53,12 +72,15 @@ export function EnterpriseList() {
   const [filterRegCapital, setFilterRegCapital] = useState('');
   const [filterEstablishment, setFilterEstablishment] = useState('');
   const [filterRevenue, setFilterRevenue] = useState('');
+  const [filterBatch, setFilterBatch] = useState('');
+  const [filterMissingFields, setFilterMissingFields] = useState<string[]>([]);
 
   // Derived options from data
   const provinceOptions = useMemo(() => [...new Set(mockEnterprises.map(e => e.province).filter(Boolean))].sort(), []);
   const cityOptions = useMemo(() => [...new Set(mockEnterprises.map(e => e.city || e.province).filter(Boolean))].sort(), []);
   const scaleOptions = useMemo(() => [...new Set(mockEnterprises.map(e => e.scale).filter(Boolean))].sort(), []);
   const techDomainOptions = useMemo(() => [...new Set(mockEnterprises.map(e => e.techDomain).filter(Boolean))].sort(), []);
+  const batchOptions = useMemo(() => [...new Set(mockEnterprises.map(e => e.batch).filter(Boolean))].sort(), []);
   const typeOptions = useMemo(() => [...new Set(mockEnterprises.map(e => e.type).filter(Boolean))].sort(), []);
 
   // Close filter panel on outside click
@@ -116,12 +138,22 @@ export function EnterpriseList() {
         }
       }
 
+      if (filterBatch && ent.batch !== filterBatch) return false;
+
+      if (filterMissingFields.length > 0) {
+        const hasMissing = filterMissingFields.some(fieldKey => {
+          const option = MISSING_FIELD_OPTIONS.find(o => o.key === fieldKey);
+          return option ? option.isMissing(ent) : false;
+        });
+        if (!hasMissing) return false;
+      }
+
       return true;
     });
-  }, [filterProvince, filterCity, filterScale, filterTechDomain, filterType, filterRegCapital, filterEstablishment, filterRevenue]);
+  }, [filterProvince, filterCity, filterScale, filterTechDomain, filterType, filterRegCapital, filterEstablishment, filterRevenue, filterBatch, filterMissingFields]);
 
   // Check if any filter is active
-  const hasActiveFilters = filterProvince || filterCity || filterScale || filterTechDomain || filterType || filterRegCapital || filterEstablishment || filterRevenue;
+  const hasActiveFilters = filterProvince || filterCity || filterScale || filterTechDomain || filterType || filterRegCapital || filterEstablishment || filterRevenue || filterBatch || filterMissingFields.length > 0;
 
   const resetFilters = () => {
     setFilterProvince('');
@@ -132,6 +164,8 @@ export function EnterpriseList() {
     setFilterRegCapital('');
     setFilterEstablishment('');
     setFilterRevenue('');
+    setFilterBatch('');
+    setFilterMissingFields([]);
   };
 
   useEffect(() => {
@@ -275,7 +309,8 @@ export function EnterpriseList() {
                 <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-blue-600 rounded-full">
                   {[
                     filterProvince, filterCity, filterScale, filterTechDomain,
-                    filterType, filterRegCapital, filterEstablishment, filterRevenue,
+                    filterType, filterRegCapital, filterEstablishment, filterRevenue, filterBatch,
+                    ...filterMissingFields,
                   ].filter(Boolean).length}
                 </span>
               )}
@@ -397,6 +432,43 @@ export function EnterpriseList() {
                       <option value="">不限</option>
                       {REVENUE_RANGES.map(r => <option key={r.label} value={r.label}>{r.label}</option>)}
                     </select>
+                  </div>
+
+                  {/* 批次 */}
+                  <div>
+                    <div className="text-xs text-slate-500 mb-1.5">批次</div>
+                    <select
+                      value={filterBatch}
+                      onChange={e => setFilterBatch(e.target.value)}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
+                    >
+                      <option value="">不限</option>
+                      {batchOptions.map(o => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  </div>
+
+                  {/* 缺失字段 */}
+                  <div className="col-span-3">
+                    <div className="text-xs text-slate-500 mb-2">缺失项筛选</div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+                      {MISSING_FIELD_OPTIONS.map(opt => (
+                        <label key={opt.key} className="flex items-center gap-1.5 text-sm text-slate-700 cursor-pointer hover:text-slate-900">
+                          <input
+                            type="checkbox"
+                            checked={filterMissingFields.includes(opt.key)}
+                            onChange={() => {
+                              setFilterMissingFields(prev =>
+                                prev.includes(opt.key)
+                                  ? prev.filter(k => k !== opt.key)
+                                  : [...prev, opt.key]
+                              );
+                            }}
+                            className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          {opt.label}
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
@@ -973,6 +1045,15 @@ export function EnterpriseList() {
               </div>
 
               <div className="space-y-3 border-t border-slate-100 pt-4">
+                <p className="text-xs font-semibold text-slate-700">批次 <span className="text-red-500">*</span></p>
+                <input
+                  type="text"
+                  value={importBatch}
+                  onChange={e => setImportBatch(e.target.value)}
+                  placeholder="请输入批次，如：2026年8月批次"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+
                 <p className="text-xs font-semibold text-slate-700">导入模式 <span className="text-red-500">*</span></p>
                 <label className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors hover:bg-slate-50"
                   style={{ borderColor: importMode === 'supplement' ? '#2563eb' : '#d1d5db', backgroundColor: importMode === 'supplement' ? '#eff6ff' : 'transparent' }}>

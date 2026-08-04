@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { mockTemplates } from '../data';
 import type { Rule, RuleTemplate, RuleTier, ConditionClause } from '../types';
 import { FIELD_CATALOG } from '../utils/ruleEngine';
-import { Save, PlusCircle, Trash2, ArrowLeft, Settings2, Copy, FileCode2, ChevronDown } from 'lucide-react';
+import { Save, PlusCircle, Trash2, ArrowLeft, Settings2, Copy, FileCode2, ChevronDown, X } from 'lucide-react';
 
 let nextId = 200;
 
@@ -53,8 +53,10 @@ function useFieldGroups() {
 
 export function RuleConfig() {
   const [templates, setTemplates] = useState<RuleTemplate[]>(mockTemplates);
+  const [savedRules, setSavedRules] = useState<Rule[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [showRuleLibrary, setShowRuleLibrary] = useState(false);
 
   const [editName, setEditName] = useState('');
   const [editRules, setEditRules] = useState<Rule[]>([]);
@@ -68,6 +70,32 @@ export function RuleConfig() {
     setEditRules(t.rules.map(r => structuredClone(r)));
     setSelectedTemplateId(t.id);
     setIsCreating(false);
+  };
+
+  // Auto-collect every rule from saved templates into the rule library,
+  // named as "模板-规则名".
+  useEffect(() => {
+    const rules: Rule[] = [];
+    templates.forEach(t => {
+      t.rules.forEach(r => {
+        rules.push({
+          ...structuredClone(r),
+          name: `${t.name}-${r.name}`,
+          id: genId('sr'),
+        });
+      });
+    });
+    setSavedRules(rules);
+  }, [templates]);
+
+  const cloneRuleWithNewId = (rule: Rule): Rule => ({
+    ...structuredClone(rule),
+    id: genId('r'),
+  });
+
+  const referenceSavedRule = (rule: Rule) => {
+    setEditRules(prev => [...prev, cloneRuleWithNewId(rule)]);
+    setShowRuleLibrary(false);
   };
 
   const startCreate = () => {
@@ -559,15 +587,78 @@ export function RuleConfig() {
           ))}
 
           {/* Add rule button */}
-          <button
-            onClick={addRule}
-            className="w-full py-3.5 border-2 border-dashed border-slate-300 rounded-xl text-slate-500 font-medium flex items-center justify-center gap-2 hover:bg-slate-50 hover:text-blue-600 hover:border-blue-300 transition-colors"
-          >
-            <PlusCircle className="w-5 h-5" />
-            添加新规则
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowRuleLibrary(true)}
+              className="flex-1 py-3.5 border-2 border-dashed border-slate-300 rounded-xl text-slate-500 font-medium flex items-center justify-center gap-2 hover:bg-slate-50 hover:text-blue-600 hover:border-blue-300 transition-colors"
+            >
+              <FileCode2 className="w-5 h-5" />
+              引用已有规则
+            </button>
+            <button
+              onClick={addRule}
+              className="flex-1 py-3.5 border-2 border-dashed border-slate-300 rounded-xl text-slate-500 font-medium flex items-center justify-center gap-2 hover:bg-slate-50 hover:text-blue-600 hover:border-blue-300 transition-colors"
+            >
+              <PlusCircle className="w-5 h-5" />
+              添加新规则
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Rule Library Modal */}
+      {showRuleLibrary && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[80vh] flex flex-col overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+              <h3 className="text-lg font-bold text-slate-800">引用已有规则</h3>
+              <button onClick={() => setShowRuleLibrary(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6">
+              {savedRules.length === 0 ? (
+                <div className="text-center py-16 text-slate-400 text-sm">
+                  暂无可引用的规则，请先保存模板中的规则
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {savedRules.map(rule => (
+                    <div key={rule.id} className="flex items-center justify-between gap-4 border border-slate-200 rounded-lg p-4 hover:border-blue-300 hover:bg-blue-50/30 transition-colors">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-semibold text-slate-900">{rule.name}</span>
+                          <span className="text-xs text-slate-400">
+                            {rule.tiers.length} 个档次
+                          </span>
+                        </div>
+                        <div className="text-xs text-slate-500 truncate">
+                          {rule.description || '暂无描述'}
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {rule.tiers.map((tier, ti) => (
+                            <span key={tier.id} className="inline-flex px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded-md">
+                              {tier.label || `档次 ${ti + 1}`}
+                              {tier.guardConditions.length > 0 && ` · 适用 ${tier.guardConditions.length} 条`}
+                              {tier.targetConditions.length > 0 && ` · 达标 ${tier.targetConditions.length} 条`}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => referenceSavedRule(rule)}
+                        className="flex-shrink-0 px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 shadow-sm transition-colors"
+                      >
+                        引用
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

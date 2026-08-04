@@ -48,7 +48,8 @@ export const mockEnterprises: Enterprise[] = [
     netAssetLastYear: 200,
     highLevelTalent: 8,
     financingAmount: 0,
-    coreProduct: "干细胞制剂"
+    coreProduct: "干细胞制剂",
+    batch: "2026年8月批次"
   },
   {
     id: "1065cb7a8f28d664b8d27b79458c46be",
@@ -97,7 +98,8 @@ export const mockEnterprises: Enterprise[] = [
     netAssetLastYear: 200,
     highLevelTalent: 0,
     financingAmount: 500,
-    coreProduct: "氮化硅陶瓷"
+    coreProduct: "氮化硅陶瓷",
+    batch: "2026年8月批次"
   },
   {
     id: "da6b18c72a0b34e2a86278461b706371",
@@ -146,7 +148,8 @@ export const mockEnterprises: Enterprise[] = [
     netAssetLastYear: 50,
     highLevelTalent: 2,
     financingAmount: 300,
-    coreProduct: "多模态大模型"
+    coreProduct: "多模态大模型",
+    batch: "2026年8月批次"
   },
   {
     id: "71641e8daaabd83c7fbfff59157e030d",
@@ -195,7 +198,8 @@ export const mockEnterprises: Enterprise[] = [
     netAssetLastYear: 380,
     highLevelTalent: 0,
     financingAmount: 0,
-    coreProduct: "无人机防御系统"
+    coreProduct: "无人机防御系统",
+    batch: "2026年8月批次"
   },
   {
     id: "5791702af1a356d6cacaea513156d0ba",
@@ -225,7 +229,8 @@ export const mockEnterprises: Enterprise[] = [
     netAssetLastYear: 0,
     highLevelTalent: 0,
     financingAmount: 0,
-    coreProduct: ""
+    coreProduct: "",
+    batch: "2026年8月批次"
   },
   {
     id: "3cda05dd284b9c0752644b2040d01422",
@@ -255,7 +260,8 @@ export const mockEnterprises: Enterprise[] = [
     netAssetLastYear: 0,
     highLevelTalent: 0,
     financingAmount: 0,
-    coreProduct: ""
+    coreProduct: "",
+    batch: "2026年8月批次"
   },
   {
     id: "2327830742feafbd69f67c5681ceed69",
@@ -285,7 +291,8 @@ export const mockEnterprises: Enterprise[] = [
     netAssetLastYear: 0,
     highLevelTalent: 0,
     financingAmount: 0,
-    coreProduct: ""
+    coreProduct: "",
+    batch: "2026年8月批次"
   },
   {
     id: "562a5c2ed26e3e6e1ad9086c35da112b",
@@ -315,7 +322,8 @@ export const mockEnterprises: Enterprise[] = [
     netAssetLastYear: 0,
     highLevelTalent: 0,
     financingAmount: 0,
-    coreProduct: ""
+    coreProduct: "",
+    batch: "2026年8月批次"
   },
   {
     id: "888b74cbb9207f9ad16d8ca300f9db8b",
@@ -345,7 +353,8 @@ export const mockEnterprises: Enterprise[] = [
     netAssetLastYear: 0,
     highLevelTalent: 0,
     financingAmount: 0,
-    coreProduct: ""
+    coreProduct: "",
+    batch: "2026年8月批次"
   },
   {
     id: "ac59232592c005cb37425032c5bc1673",
@@ -375,7 +384,8 @@ export const mockEnterprises: Enterprise[] = [
     netAssetLastYear: 0,
     highLevelTalent: 0,
     financingAmount: 0,
-    coreProduct: ""
+    coreProduct: "",
+    batch: "2026年8月批次"
   },
   {
     id: "2db0d80faa85ce4a135b3fe118082d96",
@@ -405,7 +415,8 @@ export const mockEnterprises: Enterprise[] = [
     netAssetLastYear: 0,
     highLevelTalent: 0,
     financingAmount: 0,
-    coreProduct: ""
+    coreProduct: "",
+    batch: "2026年8月批次"
   }
 ];
 

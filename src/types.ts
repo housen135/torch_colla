@@ -54,6 +54,7 @@ export interface Enterprise {
   highLevelTalent: number;
   financingAmount: number;
   coreProduct: string;
+  batch: string;
 }
 
 export interface ConditionClause {
