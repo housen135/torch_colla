@@ -360,7 +360,7 @@ export function RuleConfig() {
                   <FileCode2 className="w-5 h-5 text-blue-600" />
                 </div>
                 <h3 className="font-bold text-slate-800 text-lg mb-2">{t.name}</h3>
-                <p className="text-sm text-slate-500 mb-4">包含 {t.rules.length} 条判定规则，用于评估企业资质与指标达标情况。</p>
+                <p className="text-sm text-slate-500 mb-4">包含 {t.rules.length} 条判定规则。</p>
                 <div className="flex flex-wrap gap-2">
                   {t.rules.slice(0, 3).map(r => (
                     <span key={r.id} className="inline-flex px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded-md">
@@ -635,15 +635,16 @@ export function RuleConfig() {
                         <div className="text-xs text-slate-500 truncate">
                           {rule.description || '暂无描述'}
                         </div>
-                        <div className="flex flex-wrap gap-1.5 mt-2">
-                          {rule.tiers.map((tier, ti) => (
-                            <span key={tier.id} className="inline-flex px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded-md">
-                              {tier.label || `档次 ${ti + 1}`}
-                              {tier.guardConditions.length > 0 && ` · 适用 ${tier.guardConditions.length} 条`}
-                              {tier.targetConditions.length > 0 && ` · 达标 ${tier.targetConditions.length} 条`}
-                            </span>
-                          ))}
-                        </div>
+                        {rule.tiers.some(t => t.guardConditions.length > 0) && (
+                          <div className="flex flex-wrap gap-1.5 mt-2">
+                            {rule.tiers.filter(t => t.guardConditions.length > 0).map(tier => (
+                              <span key={tier.id} className="inline-flex px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded-md">
+                                {tier.label || '未命名档次'}
+                                {` · 适用 ${tier.guardConditions.length} 条`}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <button
                         onClick={() => referenceSavedRule(rule)}

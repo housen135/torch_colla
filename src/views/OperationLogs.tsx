@@ -1,6 +1,12 @@
 import { mockLogs } from '../data';
 import { History, Search, Filter, Calendar } from 'lucide-react';
 
+// 审批类操作单独配色，便于与常规数据操作区分
+const ACTION_STYLES: Record<string, string> = {
+  '申请联系方式': 'bg-amber-50 text-amber-700 border-amber-100',
+  '审批通过': 'bg-emerald-50 text-emerald-700 border-emerald-100',
+};
+
 export function OperationLogs() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -20,7 +26,7 @@ export function OperationLogs() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input 
               type="text" 
-              placeholder="搜索操作人、目标或详情..." 
+              placeholder="搜索操作人、操作目标..."
               className="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm"
             />
           </div>
@@ -42,7 +48,6 @@ export function OperationLogs() {
                 <th className="px-6 py-4 font-semibold whitespace-nowrap">操作人 / 部门</th>
                 <th className="px-6 py-4 font-semibold whitespace-nowrap">操作类型</th>
                 <th className="px-6 py-4 font-semibold whitespace-nowrap">操作目标 / 对象</th>
-                <th className="px-6 py-4 font-semibold">详细说明</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -54,17 +59,19 @@ export function OperationLogs() {
                     <div className="text-xs text-slate-500">{log.department}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex px-2.5 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                    <span className={`inline-flex px-2.5 py-1 rounded-md text-xs font-medium border ${ACTION_STYLES[log.action] ?? 'bg-blue-50 text-blue-700 border-blue-100'}`}>
                       {log.action}
                     </span>
                   </td>
-                  <td className="px-6 py-4 font-medium text-slate-800">{log.target}</td>
-                  <td className="px-6 py-4 text-slate-600">{log.details}</td>
+                  <td className="px-6 py-4">
+                    <div className="font-medium text-slate-800">{log.target}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">{log.details}</div>
+                  </td>
                 </tr>
               ))}
               {mockLogs.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
+                  <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
                     暂无操作记录
                   </td>
                 </tr>

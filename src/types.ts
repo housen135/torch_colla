@@ -93,3 +93,23 @@ export interface LogEntry {
   target: string;
   details: string;
 }
+
+export type UserRole = 'admin' | 'member';
+
+export interface CurrentUser {
+  name: string;
+  department: string;
+  role: UserRole;
+}
+
+export type ContactRequestStatus = 'pending' | 'approved' | 'rejected';
+
+/** 申请人提交的「查看企业联系人」申请 */
+export interface ContactRequest {
+  id: string;
+  company: string;
+  applicant: string;
+  department: string;
+  appliedAt: string;
+  status: ContactRequestStatus;
+}
